@@ -1,6 +1,6 @@
 pub mod routers;
 
-use crate::marketdata::models::{Spot, YieldCurve, ImplVolCurve};
+use crate::marketdata::models::{Spot, Curve, MarketData};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
@@ -12,7 +12,7 @@ use utoipa::OpenApi;
         routers::health_check
     ),
     components(
-        schemas(Spot, YieldCurve, ImplVolCurve)
+        schemas(Spot, Curve, MarketData)
     ),
     tags(
         (name = "Ultima QL", description = "Ultimate Business Intellegence endpoints.")

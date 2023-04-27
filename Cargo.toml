@@ -25,3 +25,4 @@ chrono={version="*",  features = ["serde", "rustc-serialize"]}
 futures = "*"
 utoipa = { git="https://github.com/juhaku/utoipa", features = ["actix_extras"] }
 utoipa-swagger-ui = { git="https://github.com/juhaku/utoipa", features = ["actix-web"] }
+yearfrac = "*"
