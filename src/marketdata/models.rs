@@ -30,6 +30,27 @@ pub struct Curve {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
+#[serde(untagged)]
 pub enum CompoundingFrequency{
     Continuous
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum DCC{
+    DCC(yearfrac::DayCountConvention)
+}
+
+impl<'__s> utoipa::ToSchema<'__s> for DCC {
+    fn schema() -> (&'__s str, utoipa::openapi::RefOr<utoipa::openapi::schema::Schema>) {
+         ("DayCountConvention",
+         utoipa::openapi::ObjectBuilder::new()
+         //.to_array_builder()
+         //.items([
+         //   "US30360",
+         //])
+         //.enum_values(Some(["US30360"]))
+         .into()
+        )
+    }
 }

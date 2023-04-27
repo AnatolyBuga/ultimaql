@@ -3,8 +3,10 @@ use std::{env, net::SocketAddr};
 use actix_web::{HttpServer, App, web::{Data, self}, middleware::Logger};
 use clap::Parser;
 use mongodb::{Client, Collection, IndexModel, bson::{Document, Bson}, options::IndexOptions};
-use ultima_quantlib::{marketdata::models::MarketData, api::routers::health_check};
+use ultima_quantlib::{marketdata::models::MarketData, api::routers::health_check, api::ApiDoc};
+use utoipa_swagger_ui::SwaggerUi;
 use std::net::TcpListener;
+use utoipa::OpenApi;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -52,13 +54,17 @@ async fn main() -> anyhow::Result<()> {
         .expect("can't parse ADDRES variable");
 
     let listener = TcpListener::bind(addr).expect("Failed to bind the port");
+    let openapi = ApiDoc::openapi();
 
     HttpServer::new(move || {
         App::new()
         .wrap(Logger::default())
         .service(
             web::scope("/api")
-            .service(health_check)
+            .service(health_check) 
+        )
+        .service(
+            SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-doc/openapi.json", openapi.clone()),
         )
         .app_data(data_md.clone())
     })
