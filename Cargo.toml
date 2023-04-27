@@ -1,0 +1,27 @@
+[package]
+name = "ultima_quantlib"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+path = "src/bin/main.rs"
+name = "server"
+
+[dependencies]
+actix-web = "4"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+anyhow = "1.0.40"
+mongodb = "2.5.0"
+serde_json = "1"
+serde = "1.0.115"
+dotenv = "*"
+pretty_env_logger = "*"
+clap = { version = "4", features = ["derive"] }
+chrono={version="*",  features = ["serde", "rustc-serialize"]}
+futures = "*"
+utoipa = { git="https://github.com/juhaku/utoipa", features = ["actix_extras"] }
+utoipa-swagger-ui = { git="https://github.com/juhaku/utoipa", features = ["actix-web"] }
