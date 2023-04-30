@@ -12,12 +12,13 @@ use crate::marketdata::models::{Curve, MarketData, Spot};
 use statrs::distribution::{ContinuousCDF, Normal};
 
 #[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
-#[serde(tag = "type")]
+#[serde(untagged)]
 pub enum Instrument {
     EurpoeanOption(EurpoeanOption),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
+#[serde(tag = "type")]
 pub struct EurpoeanOption {
     /// MarketData of type Spot must exist with same name
     pub underlying: String,
@@ -42,7 +43,7 @@ pub enum OptionDirection {
 }
 
 impl Instrument {
-    pub async fn pv(&self, dt: &str, md: &Collection<MarketData>) -> Result<f64, anyhow::Error> {
+    pub async fn pv(&self, dt: NaiveDate, md: &Collection<MarketData>) -> Result<f64, anyhow::Error> {
         match self {
             Instrument::EurpoeanOption(eo) => {
                 let underlying = md
@@ -110,7 +111,7 @@ impl Instrument {
                 };
 
                 let prod = eo.clone();
-                let dt: NaiveDate = serde_json::from_str(dt)?;
+                //let dt: NaiveDate = serde_json::from_str(dt)?;
 
                 tokio::task::spawn_blocking(move || prod.pv(dt, underlying, yc, iv))
                     .await

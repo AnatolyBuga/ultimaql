@@ -7,7 +7,7 @@ use crate::{
 use utoipa::OpenApi;
 use yearfrac::DayCountConvention;
 
-use self::routers::PriceRequest;
+use self::routers::{PriceRequest};
 
 #[derive(OpenApi)]
 #[openapi(
