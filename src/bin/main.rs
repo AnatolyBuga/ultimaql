@@ -65,6 +65,7 @@ async fn main() -> anyhow::Result<()> {
             .service(upload)
             .service(get_md)
             .service(delete_md)
+            .service(price)
         )
         .service(
             SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-doc/openapi.json", openapi.clone()),
