@@ -20,6 +20,8 @@ pub struct EurpoeanOption{
     /// MarketData of type Curve must exist with same name
     implied_vol: String,
     strike: f64,
+    /// Call or Put
+    direction: OptionDirection,
     /// date
     /// eg "2023-01-01"
     #[schema(format=Date, example="2021-12-01")]
@@ -30,4 +32,10 @@ impl Instrument {
     pub fn pv(&self, _: &Collection<MarketData>){
 
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
+pub enum OptionDirection{
+    Call,
+    Put
 }

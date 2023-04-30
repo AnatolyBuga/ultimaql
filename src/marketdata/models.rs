@@ -37,7 +37,6 @@ pub struct Curve {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
-#[serde(untagged)]
 pub enum CompoundingFrequency{
     Continuous
 }

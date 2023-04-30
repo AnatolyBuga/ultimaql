@@ -1,8 +1,9 @@
 use actix_web::{HttpRequest, web::{Data, self}, Responder, HttpResponse, get, Result, post, http::header::ContentType, delete};
 use anyhow::Context;
+use chrono::NaiveDate;
 use futures::TryStreamExt;
 use mongodb::{Collection, bson::{Document, Bson}};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use crate::{marketdata::models::MarketData, instruments::models::Instrument};
 //use futures::stream::{StreamExt};
 
@@ -123,4 +124,21 @@ pub async fn price(prod: web::Json<Instrument>, md: Data<Collection<MarketData>>
 pub struct Search {
     name: String,
     as_of: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
+pub struct PriceRequest {
+    /// Instrument to be priced
+    instrument: Instrument,
+    /// Pricing As Of date
+    /// Market Data for this date must exis.
+    /// If not provided defaults to Naive local date
+    /// eg "2023-01-01"
+    #[schema(format=Date, example="2021-12-01")]
+    #[serde(default = "today")]
+    date: NaiveDate,
+}
+
+fn today() -> NaiveDate {
+    chrono::Utc::now().date_naive()
 }
