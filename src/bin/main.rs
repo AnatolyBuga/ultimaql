@@ -3,7 +3,7 @@ use std::{env, net::SocketAddr};
 use actix_web::{HttpServer, App, web::{Data, self}, middleware::Logger};
 use clap::Parser;
 use mongodb::{Client, Collection, IndexModel, bson::{Document, Bson}, options::IndexOptions};
-use ultima_quantlib::{marketdata::models::MarketData, api::routers::{health_check, upload, get_md, delete_md}, api::ApiDoc};
+use ultima_quantlib::{marketdata::models::MarketData, api::routers::{health_check, upload, get_md, delete_md, price}, api::ApiDoc};
 use utoipa_swagger_ui::SwaggerUi;
 use std::net::TcpListener;
 use utoipa::OpenApi;

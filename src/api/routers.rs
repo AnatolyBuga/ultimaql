@@ -97,18 +97,19 @@ pub async fn delete_md(path: web::Query<Search>, md: Data<Collection<MarketData>
     )
 }
 
+#[utoipa::path]
 #[post("/price")]
 pub async fn price(prod: web::Json<Instrument>, md: Data<Collection<MarketData>>) 
 -> Result<HttpResponse> {
     
-    let res = tokio::task::spawn_blocking(move || {
+    tokio::task::spawn_blocking(move || {
             //let md = md.as_ref();
             prod.pv(&md)
         })
         .await
         .context("Failed to spawn blocking task.")
         .map_err(actix_web::error::ErrorInternalServerError)?;
-    
+
     let res = 100;
     let body = serde_json::to_string(&res).unwrap();
     Ok(

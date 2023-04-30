@@ -27,7 +27,7 @@ pub struct EurpoeanOption{
 }
 
 impl Instrument {
-    pub fn pv(&self, md: &Collection<MarketData>){
-        
+    pub fn pv(&self, _: &Collection<MarketData>){
+
     }
 }
