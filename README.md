@@ -31,9 +31,15 @@ Naturally, Market Data comes in various shapes and forms. A spot is a totally di
 
  ### Steps
  From the top level directory:
- `docker-compose up --build` - this builds two docker images (one from `Dockerfile` and another is the standard mongo image)
+ `docker-compose up --build` - this builds two docker images (one from `Dockerfile` which is the backend server and another is the standard mongo image) and run them.
 
- To check out `swagger docs` navigate to: `http://localhost:8000/swagger-ui/` in your browser.
+ To check out `swagger docs` navigate to: `http://localhost:8000/swagger-ui/` in your browser. You will see:
+ <p align="center">
+    <a href="https://frtb.demo.ultimabi.uk/" target="_blank">
+    <img width="900" src="/img/swagger.png" alt="Ultima Logo">
+    </a>
+</p>
+ 
 
  Upload Market Data:
 
