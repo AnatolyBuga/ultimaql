@@ -1,25 +1,42 @@
 //! TODO move to a separate crate
 
-use chrono::{DateTime, Utc};
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
+use yearfrac::DayCountConvention;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
 #[serde(untagged)]
-pub enum MarketData{
+pub enum MarketData {
     Spot(Spot),
-    YieldCurve(YieldCurve),
-    ImplVolCurve(ImplVolCurve)
+    Curve(Curve),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, utoipa::ToSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
 pub struct Spot {
-    name: String,
-    as_of: DateTime<Utc>,
-    value: f64
+    pub name: String,
+    /// date
+    /// eg "2023-01-01"
+    #[schema(format=Date)]
+    pub as_of: NaiveDate,
+    pub value: f64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize,Hash, PartialEq, Eq, utoipa::ToSchema)]
-pub struct YieldCurve {}
+/// General Curve
+#[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
+pub struct Curve {
+    pub name: String,
+    /// date
+    /// eg "2023-01-01"
+    #[schema(format=Date, example="2021-12-01")]
+    pub as_of: NaiveDate,
+    pub day_count_conv: DayCountConvention,
+    pub compounding: CompoundingFrequency,
+    /// (Tenor, Value)
+    /// eg [("2023-01-01", 0.999), ("2023-01-22", 0.81)]
+    pub values: Vec<(NaiveDate, f64)>,
+}
 
-#[derive(Debug, Clone, Serialize, Deserialize,Hash, PartialEq, Eq, utoipa::ToSchema)]
-pub struct ImplVolCurve {}
+#[derive(Debug, Clone, Serialize, Copy, Deserialize, utoipa::ToSchema)]
+pub enum CompoundingFrequency {
+    Continuous,
+}
