@@ -1,8 +1,13 @@
 pub mod routers;
 
-use crate::{marketdata::models::{Spot, Curve, MarketData, CompoundingFrequency}, instruments::models::{Instrument, EurpoeanOption, OptionDirection}};
+use crate::{
+    instruments::models::{EurpoeanOption, Instrument, OptionDirection},
+    marketdata::models::{CompoundingFrequency, Curve, MarketData, Spot},
+};
 use utoipa::OpenApi;
 use yearfrac::DayCountConvention;
+
+use self::routers::PriceRequest;
 
 #[derive(OpenApi)]
 #[openapi(
@@ -18,7 +23,7 @@ use yearfrac::DayCountConvention;
     ),
     components(
         schemas(Spot, Curve, MarketData, CompoundingFrequency, DayCountConvention,
-            Instrument,EurpoeanOption, OptionDirection)
+            Instrument,EurpoeanOption, OptionDirection, PriceRequest)
     ),
     tags(
         (name = "Ultima QL", description = "Ultimate Business Intellegence endpoints.")

@@ -1,15 +1,27 @@
-use actix_web::{HttpRequest, web::{Data, self}, Responder, HttpResponse, get, Result, post, http::header::ContentType, delete};
+use crate::{instruments::models::Instrument, marketdata::models::MarketData};
+use actix_web::{
+    delete, get,
+    http::header::ContentType,
+    post,
+    web::{self, Data},
+    HttpRequest, HttpResponse, Responder, Result,
+};
 use anyhow::Context;
 use chrono::NaiveDate;
 use futures::TryStreamExt;
-use mongodb::{Collection, bson::{Document, Bson}};
+use mongodb::{
+    bson::{Bson, Document},
+    Collection,
+};
 use serde::{Deserialize, Serialize};
-use crate::{marketdata::models::MarketData, instruments::models::Instrument};
 //use futures::stream::{StreamExt};
 
 #[utoipa::path]
 #[get("/health_check")]
-pub async fn health_check(_: HttpRequest, _: Data<Collection<MarketData>>) -> Result<impl Responder> {
+pub async fn health_check(
+    _: HttpRequest,
+    _: Data<Collection<MarketData>>,
+) -> Result<impl Responder> {
     Ok(HttpResponse::Ok())
 }
 
@@ -27,18 +39,19 @@ pub async fn health_check(_: HttpRequest, _: Data<Collection<MarketData>>) -> Re
         (status = 200, description = "data loaded successfully",)
 ))]
 #[post("/marketdata")]
-pub async fn upload(req: web::Json<Vec<MarketData>>, md: Data<Collection<MarketData>>) 
--> Result<HttpResponse> {
+pub async fn upload(
+    req: web::Json<Vec<MarketData>>,
+    md: Data<Collection<MarketData>>,
+) -> Result<HttpResponse> {
     let new = req.into_inner();
-    let res = md.insert_many(new, None)
+    let res = md
+        .insert_many(new, None)
         .await
         .map_err(actix_web::error::ErrorExpectationFailed)?;
     let body = serde_json::to_string(&res).unwrap();
-    Ok(
-    HttpResponse::Ok()
-            .content_type(ContentType::json())
-            .body(body)
-    )
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .body(body))
 }
 
 #[utoipa::path(
@@ -49,26 +62,29 @@ pub async fn upload(req: web::Json<Vec<MarketData>>, md: Data<Collection<MarketD
     )
 )]
 #[get("/marketdata")]
-pub async fn get_md(path: web::Query<Search>, md: Data<Collection<MarketData>>) 
--> Result<HttpResponse> {
+pub async fn get_md(
+    path: web::Query<Search>,
+    md: Data<Collection<MarketData>>,
+) -> Result<HttpResponse> {
     //let (name, dt) = path.into_inner();
-    let Search {name, as_of} = path.into_inner();
+    let Search { name, as_of } = path.into_inner();
     dbg!(&as_of);
     let doc = Document::from_iter([
         ("name".to_string(), Bson::String(name)),
-        ("as_of".to_string(), Bson::String(as_of))
+        ("as_of".to_string(), Bson::String(as_of)),
     ]);
-    let cursor = md.find(doc, None)
+    let cursor = md
+        .find(doc, None)
         .await
         .map_err(actix_web::error::ErrorExpectationFailed)?;
-    let v: Vec<MarketData> = cursor.try_collect().await
+    let v: Vec<MarketData> = cursor
+        .try_collect()
+        .await
         .map_err(actix_web::error::ErrorExpectationFailed)?;
     let body = serde_json::to_string(&v).unwrap();
-    Ok(
-    HttpResponse::Ok()
-            .content_type(ContentType::json())
-            .body(body)
-    )
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .body(body))
 }
 
 #[utoipa::path(
@@ -79,45 +95,44 @@ pub async fn get_md(path: web::Query<Search>, md: Data<Collection<MarketData>>)
     )
 )]
 #[delete("/marketdata")]
-pub async fn delete_md(path: web::Query<Search>, md: Data<Collection<MarketData>>) 
--> Result<HttpResponse> {
+pub async fn delete_md(
+    path: web::Query<Search>,
+    md: Data<Collection<MarketData>>,
+) -> Result<HttpResponse> {
     //let (name, dt) = path.into_inner();
-    let Search {name, as_of} = path.into_inner();
+    let Search { name, as_of } = path.into_inner();
     let doc = Document::from_iter([
         ("name".to_string(), Bson::String(name)),
-        ("as_of".to_string(), Bson::String(as_of))
+        ("as_of".to_string(), Bson::String(as_of)),
     ]);
-    let res = md.delete_many(doc, None)
+    let res = md
+        .delete_many(doc, None)
         .await
         .map_err(actix_web::error::ErrorExpectationFailed)?;
     let body = serde_json::to_string(&res).unwrap();
-    Ok(
-    HttpResponse::Ok()
-            .content_type(ContentType::json())
-            .body(body)
-    )
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .body(body))
 }
 
 #[utoipa::path]
 #[post("/price")]
-pub async fn price(prod: web::Json<Instrument>, md: Data<Collection<MarketData>>) 
--> Result<HttpResponse> {
-    
-    tokio::task::spawn_blocking(move || {
-            //let md = md.as_ref();
-            prod.pv(&md)
-        })
+pub async fn price(
+    req: web::Json<PriceRequest>,
+    md: Data<Collection<MarketData>>,
+) -> Result<HttpResponse> {
+    let pr = req.into_inner();
+    let PriceRequest { instrument, date } = pr;
+
+    let res = instrument
+        .pv(&date, &md)
         .await
-        .context("Failed to spawn blocking task.")
         .map_err(actix_web::error::ErrorInternalServerError)?;
 
-    let res = 100;
     let body = serde_json::to_string(&res).unwrap();
-    Ok(
-    HttpResponse::Ok()
-            .content_type(ContentType::json())
-            .body(body)
-    )
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .body(body))
 }
 
 #[derive(Deserialize)]
@@ -136,9 +151,9 @@ pub struct PriceRequest {
     /// eg "2023-01-01"
     #[schema(format=Date, example="2021-12-01")]
     #[serde(default = "today")]
-    date: NaiveDate,
+    date: String,
 }
 
-fn today() -> NaiveDate {
-    chrono::Utc::now().date_naive()
+fn today() -> String {
+    serde_json::to_string(&chrono::Utc::now().date_naive()).unwrap()
 }
