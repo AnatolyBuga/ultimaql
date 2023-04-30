@@ -1,8 +1,18 @@
 # REST API web application for derivative pricing and market data storage
+Fast and scalable server for derivative pricing
 
-# Architecture 
+# Key features
+- Async runtime
+- Multithreading for compute intensive pricing
+- swagger ui
 
-# Tech Stack
+# Products supported
+- EuropeanOptions
+
+# Models supported
+- Black76
+
+# Architecture & Tech Stack
 
 ## [Rust](https://www.rust-lang.org/) for web sevrer and compute
 Although we could easily achieve the same output with Python and Django/Flask the **performance sensitive** nature of our task begs for a better solution. I chose Rust, a modern language compiled to Assembly just like C, for the reasons outlined below:
@@ -16,5 +26,17 @@ Naturally, Market Data comes in various shapes and forms. A spot is a totally di
 - Importantly we use **name** (*name of the market data object, eg US_OIS*) and **as_of** (*observation date of the object*) as a unique index. 
 
 # How to Run
-## Prerequisites 
+### Prerequisites 
  - docker
+
+ ### Steps
+ From the top level directory:
+ `docker-compose up --build` - this builds two docker images (one from `Dockerfile` and another is the standard mongo image)
+
+ To check out `swagger docs` navigate to: `http://localhost:8000/swagger-ui/` in your browser.
+
+ Upload Market Data:
+
+ Review Market Data:
+
+ Price an Option:
