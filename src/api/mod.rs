@@ -11,7 +11,9 @@ use yearfrac::DayCountConvention;
     ),
     paths(
         routers::health_check,
-        routers::upload
+        routers::upload,
+        routers::get_md,
+        routers::delete_md,
     ),
     components(
         schemas(Spot, Curve, MarketData, CompoundingFrequency, DayCountConvention)

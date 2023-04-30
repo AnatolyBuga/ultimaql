@@ -3,7 +3,7 @@ use std::{env, net::SocketAddr};
 use actix_web::{HttpServer, App, web::{Data, self}, middleware::Logger};
 use clap::Parser;
 use mongodb::{Client, Collection, IndexModel, bson::{Document, Bson}, options::IndexOptions};
-use ultima_quantlib::{marketdata::models::MarketData, api::routers::health_check, api::ApiDoc};
+use ultima_quantlib::{marketdata::models::MarketData, api::routers::{health_check, upload, get_md, delete_md}, api::ApiDoc};
 use utoipa_swagger_ui::SwaggerUi;
 use std::net::TcpListener;
 use utoipa::OpenApi;
@@ -26,18 +26,18 @@ async fn main() -> anyhow::Result<()> {
         .unwrap();
 
     let client = Client::with_uri_str(mongo_uri).await.unwrap();
-    for db_name in client.list_database_names(None, None).await? {
-        dbg!("{}", db_name);
-    }
+    
     let db = client.database(&mongo_db);
     let md: Collection<MarketData> = db.collection("marketdata");
     let mut  index = IndexModel::builder()
-        .keys(Document::from_iter([("name".to_string(), Bson::Int32(1)),
-        ("as_of".to_string(), Bson::Int32(1))
+        .keys(Document::from_iter([
+            ("name".to_string(), Bson::Int32(1)),
+            ("as_of".to_string(), Bson::Int32(1))
         ]))
         .build();
     let options = IndexOptions::builder()
         .unique(true)
+        
         .build();
     index.options = Some(options);
 
@@ -61,7 +61,10 @@ async fn main() -> anyhow::Result<()> {
         .wrap(Logger::default())
         .service(
             web::scope("/api")
-            .service(health_check) 
+            .service(health_check)
+            .service(upload)
+            .service(get_md)
+            .service(delete_md)
         )
         .service(
             SwaggerUi::new("/swagger-ui/{_:.*}").url("/api-doc/openapi.json", openapi.clone()),

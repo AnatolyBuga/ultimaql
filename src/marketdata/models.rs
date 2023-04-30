@@ -14,6 +14,9 @@ pub enum MarketData{
 #[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
 pub struct Spot {
     name: String,
+    /// date
+    /// eg "2023-01-01"
+    #[schema(format=Date)]
     as_of: NaiveDate,
     value: f64
 }
@@ -22,7 +25,9 @@ pub struct Spot {
 #[derive(Debug, Clone, Serialize, Deserialize, utoipa::ToSchema)]
 pub struct Curve {
     name: String,
-    /// date eg "2023-01-01"
+    /// date
+    /// eg "2023-01-01"
+    #[schema(format=Date, example="2021-12-01")]
     as_of: NaiveDate,
     day_count_conv: DayCountConvention,
     compounding: CompoundingFrequency,
