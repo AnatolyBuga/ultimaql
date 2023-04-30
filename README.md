@@ -36,13 +36,12 @@ Naturally, Market Data comes in various shapes and forms. A spot is a totally di
  To check out `swagger docs` navigate to: `http://localhost:8000/swagger-ui/` in your browser. You will see:
  <p align="center">
     <a href="http://localhost:8000/swagger-ui/" target="_blank">
-    <img width="900" src="/img/swagger.png" alt="Ultima Logo">
+    <img width="900" src="img/swagger.png" alt="Ultima Logo">
     </a>
 </p>
- 
 
 ### Windows PowerShell
- Upload Market Data:
+ 1) **Upload Market Data**:
 
 ```shell
 curl.exe -H 'content-type: application/json' -X POST http://localhost:8000/api/marketdata -d '[ {\"name\":\"Brent\",\"as_of\":\"2021-12-01\",\"value\":95.6},
@@ -52,17 +51,17 @@ curl.exe -H 'content-type: application/json' -X POST http://localhost:8000/api/m
 ```
 
 
- Review Market Data:
+ 2) **Review/Retrieve Market Data**:
 ```shell
 curl.exe -X GET 'http://localhost:8000/api/marketdata?name=Brent&as_of=2021-12-01'
 ```
 
- Price an Option:
+ 3) **Price an Option**:
 ```shell
 curl.exe -H 'content-type: application/json' -X POST http://localhost:8000/api/price -d '{\"type\":\"PriceRequest\",\"instrument\":{\"type\":\"EurpoeanOption\",\"underlying\":\"Brent\",\"yield_curve\":\"OIS\",\"implied_vol\":\"ImplVol_Brent_100\",\"strike\":100.0,\"direction\":\"Call\",\"exp\":\"2023-11-30\"},\"date\": \"2021-12-01\"}'
 ```
 
- Delete Market Data
+ 4) **Delete Market Data**:
 ```shell
 curl.exe -X DELETE 'http://localhost:8000/api/marketdata?name=Brent&as_of=2021-12-01'
 ```
