@@ -1,8 +1,9 @@
 use actix_web::{HttpRequest, web::{Data, self}, Responder, HttpResponse, get, Result, post, http::header::ContentType, delete};
+use anyhow::Context;
 use futures::TryStreamExt;
 use mongodb::{Collection, bson::{Document, Bson}};
 use serde::Deserialize;
-use crate::marketdata::models::MarketData;
+use crate::{marketdata::models::MarketData, instruments::models::Instrument};
 //use futures::stream::{StreamExt};
 
 #[utoipa::path]
@@ -88,6 +89,27 @@ pub async fn delete_md(path: web::Query<Search>, md: Data<Collection<MarketData>
     let res = md.delete_many(doc, None)
         .await
         .map_err(actix_web::error::ErrorExpectationFailed)?;
+    let body = serde_json::to_string(&res).unwrap();
+    Ok(
+    HttpResponse::Ok()
+            .content_type(ContentType::json())
+            .body(body)
+    )
+}
+
+#[post("/price")]
+pub async fn price(prod: web::Json<Instrument>, md: Data<Collection<MarketData>>) 
+-> Result<HttpResponse> {
+    
+    let res = tokio::task::spawn_blocking(move || {
+            //let md = md.as_ref();
+            prod.pv(&md)
+        })
+        .await
+        .context("Failed to spawn blocking task.")
+        .map_err(actix_web::error::ErrorInternalServerError)?;
+    
+    let res = 100;
     let body = serde_json::to_string(&res).unwrap();
     Ok(
     HttpResponse::Ok()
