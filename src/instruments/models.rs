@@ -1,15 +1,12 @@
 use std::ops::Div;
 
-use actix_web::error::{ErrorInternalServerError, ErrorNotFound};
 use anyhow::Context;
 use chrono::NaiveDate;
-use futures::future::join_all;
 use mongodb::{
     bson::{Bson, Document},
     Collection,
 };
 use serde::{Deserialize, Serialize};
-use tokio::runtime::Builder;
 
 use crate::marketdata::models::{Curve, MarketData, Spot};
 use statrs::distribution::{ContinuousCDF, Normal};
